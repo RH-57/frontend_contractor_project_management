@@ -1,43 +1,73 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import Cookies from 'js-cookie';
+import { useLogin } from '../../composables/auth/useLogin';
 
 const router = useRouter();
+const { mutate, isPending } = useLogin();
 
-// State Form
-const form = reactive({
-  username: '',
-  password: '',
-});
-
-// State UI & Validation
 const showPassword = ref(false);
-const isLoading = ref(false);
+const username = ref<string>('');
+const password = ref<string>('');
+
+// Gunakan ref alih-alih reactive agar reaktivitas Vue 3 selalu konsisten
 const errors = ref<Record<string, string>>({});
 
-// Toggle password visibility
 const togglePassword = () => {
   showPassword.value = !showPassword.value;
 };
 
-// Handle Form Submit
-const handleLogin = async () => {
-  isLoading.value = true;
+const handleLogin = (e: Event) => {
+  e.preventDefault();
+
+  // 1. Reset error setiap kali tombol diklik
   errors.value = {};
 
-  try {
-    // Panggil logika login API Anda di sini
-    // await loginMutation.mutateAsync(form);
-    // router.push('/dashboard');
-  } catch (err: any) {
-    if (err.response?.data?.errors) {
-      errors.value = err.response.data.errors;
-    } else {
-      errors.value = { global: 'Username atau password yang Anda masukkan salah.' };
+  mutate(
+    { username: username.value, password: password.value },
+    {
+      onSuccess: (data: any) => {
+        Cookies.set('token', data.data.token);
+        Cookies.set(
+          'user',
+          JSON.stringify({
+            id: data.data.id,
+            name: data.data.name,
+            username: data.data.username,
+            email: data.data.email,
+            role: data.data.role,
+          })
+        );
+        router.push('/admin/dashboard');
+      },
+      onError: (error: any) => {
+        console.log('Response Error Backend:', error?.response?.data);
+
+        const resData = error?.response?.data;
+        const newErrors: Record<string, string> = {};
+
+        // 1. Cek apakah ada error spesifik per field dari validator (misal dari ShouldBindJSON)
+        if (resData?.errors && typeof resData.errors === 'object' && Object.keys(resData.errors).length > 0) {
+            for (const [key, value] of Object.entries(resData.errors)) {
+            newErrors[key] = Array.isArray(value) ? value[0] : (value as string);
+            }
+        } 
+        // 2. Jika errors kosong, ambil pesan umum (misal: "Invalid Password" atau "User not found")
+        // Mendukung key 'message' maupun 'Message' dari Go struct
+        else if (resData?.message || resData?.Message) {
+            newErrors.global = resData.message || resData.Message;
+        } 
+        // 3. Fallback jika ada kegagalan server/koneksi
+        else {
+            newErrors.global = 'Username atau password salah.';
+        }
+
+        // Update variabel reaktif
+        errors.value = newErrors;
+        }
     }
-  } finally {
-    isLoading.value = false;
-  }
+  );
 };
 </script>
 
@@ -46,7 +76,6 @@ const handleLogin = async () => {
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <!-- Logo Container -->
       <div class="mx-auto h-14 w-14 rounded-2xl bg-[#FBB03B] flex items-center justify-center shadow-lg shadow-amber-500/20">
-        <!-- Building/Construction Icon matching theme -->
         <svg class="w-8 h-8 text-[#0B1C33]" fill="currentColor" viewBox="0 0 24 24">
           <path d="M19 2H9c-1.1 0-2 .9-2 2v6H5c-1.1 0-2 .9-2 2v10h18V4c0-1.1-.9-2-2-2zm-6 16h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V8h2v2zm0-4h-2V4h2v2zm4 12h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V8h2v2zm0-4h-2V4h2v2z"/>
         </svg>
@@ -57,7 +86,7 @@ const handleLogin = async () => {
         KSP KONTRAKTOR
       </h2>
       <p class="mt-2 text-center text-sm text-slate-300">
-        Silakan masuk ke akun Anda untuk melanjutkan
+        Project Management System
       </p>
     </div>
 
@@ -65,11 +94,14 @@ const handleLogin = async () => {
       <div class="bg-white py-8 px-6 shadow-2xl rounded-2xl border border-slate-100 sm:px-10">
         
         <!-- Global Error Alert -->
-        <div v-if="errors.global" class="mb-5 p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-start space-x-3">
-          <svg class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <!-- Alert Pesan Error Umum -->
+        <div v-if="errors.global || errors.message" class="mb-5 p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-start space-x-3">
+        <svg class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <span class="text-xs sm:text-sm font-medium text-rose-700 leading-tight">{{ errors.global }}</span>
+        </svg>
+        <span class="text-xs sm:text-sm font-medium text-rose-700 leading-tight">
+            {{ errors.global || errors.message }}
+        </span>
         </div>
 
         <form class="space-y-5" @submit.prevent="handleLogin">
@@ -81,11 +113,11 @@ const handleLogin = async () => {
             <div class="relative">
               <input
                 id="username"
-                v-model="form.username"
-                type="username"
+                v-model="username"
+                type="text"
                 autocomplete="username"
                 required
-                placeholder="nama@kspkontraktor.com"
+                placeholder="Masukkan username"
                 :class="[
                   'w-full px-4 py-2.5 sm:py-3 text-sm rounded-xl border transition duration-150 focus:outline-none focus:ring-2',
                   errors.username 
@@ -103,13 +135,13 @@ const handleLogin = async () => {
           <div>
             <div class="flex items-center justify-between mb-1.5">
               <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-[#0B1C33]">
-                Kata Sandi
+                Password
               </label>
             </div>
             <div class="relative">
               <input
                 id="password"
-                v-model="form.password"
+                v-model="password"
                 :type="showPassword ? 'text' : 'password'"
                 autocomplete="current-password"
                 required
@@ -142,19 +174,19 @@ const handleLogin = async () => {
             </p>
           </div>
 
-          <!-- Submit Button (Yellow Theme) -->
+          <!-- Submit Button -->
           <div class="pt-2">
             <button
               type="submit"
-              :disabled="isLoading"
+              :disabled="isPending"
               class="w-full flex justify-center items-center py-3 px-4 rounded-xl text-sm font-bold text-[#0B1C33] bg-[#FBB03B] hover:bg-[#f0a328] active:bg-[#e0941f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FBB03B] shadow-md shadow-amber-500/10 transition duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <!-- Spinner Loading -->
-              <svg v-if="isLoading" class="animate-spin -ml-1 mr-2.5 h-4 w-4 text-[#0B1C33]" fill="none" viewBox="0 0 24 24">
+              <!-- Spinner Loading menggunakan isPending dari TanStack Query -->
+              <svg v-if="isPending" class="animate-spin -ml-1 mr-2.5 h-4 w-4 text-[#0B1C33]" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <span>{{ isLoading ? 'Memproses...' : 'Masuk ke Akun' }}</span>
+              <span>{{ isPending ? 'Memproses...' : 'Masuk ke Akun' }}</span>
             </button>
           </div>
         </form>
@@ -162,9 +194,9 @@ const handleLogin = async () => {
         <!-- Footer Link -->
         <div class="mt-6 text-center border-t border-slate-100 pt-5">
           <p class="text-xs sm:text-sm text-slate-600">
-            Belum memiliki akun?
+            Developed by
             <router-link to="/register" class="font-semibold text-[#0B1C33] hover:text-[#FBB03B] transition duration-150">
-              Daftar sekarang
+              LIRADIGI
             </router-link>
           </p>
         </div>
