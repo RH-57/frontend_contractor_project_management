@@ -39,7 +39,7 @@ const handleLogin = (e: Event) => {
             role: data.data.role,
           })
         );
-        router.push('/admin/dashboard');
+        router.push('/dashboard');
       },
       onError: (error: any) => {
         console.log('Response Error Backend:', error?.response?.data);
@@ -53,6 +53,10 @@ const handleLogin = (e: Event) => {
             newErrors[key] = Array.isArray(value) ? value[0] : (value as string);
             }
         } 
+
+        else if (resData?.error || resData?.message || resData?.Message || resData?.error_message) {
+          newErrors.global = resData.error || resData.message || resData.Message || resData.error_message;
+        }
         // 2. Jika errors kosong, ambil pesan umum (misal: "Invalid Password" atau "User not found")
         // Mendukung key 'message' maupun 'Message' dari Go struct
         else if (resData?.message || resData?.Message) {
@@ -82,10 +86,10 @@ const handleLogin = (e: Event) => {
       </div>
 
       <!-- Title & Subtitle -->
-      <h2 class="mt-6 text-center text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+      <h2 class="mt-3 text-center text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
         KSP KONTRAKTOR
       </h2>
-      <p class="mt-2 text-center text-sm text-slate-300">
+      <p class="mt-1 text-center text-sm text-slate-300">
         Project Management System
       </p>
     </div>
@@ -93,15 +97,17 @@ const handleLogin = (e: Event) => {
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
       <div class="bg-white py-8 px-6 shadow-2xl rounded-2xl border border-slate-100 sm:px-10">
         
-        <!-- Global Error Alert -->
-        <!-- Alert Pesan Error Umum -->
-        <div v-if="errors.global || errors.message" class="mb-5 p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-start space-x-3">
-        <svg class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+       <!-- Global Error Alert -->
+        <div 
+          v-if="errors.global || Object.keys(errors).length > 0" 
+          class="mb-5 p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-start space-x-3"
+        >
+          <svg class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-        <span class="text-xs sm:text-sm font-medium text-rose-700 leading-tight">
-            {{ errors.global || errors.message }}
-        </span>
+          </svg>
+          <span class="text-xs sm:text-sm font-medium text-rose-700 leading-tight">
+            {{ errors.global || errors[Object.keys(errors)[0]] }}
+          </span>
         </div>
 
         <form class="space-y-5" @submit.prevent="handleLogin">

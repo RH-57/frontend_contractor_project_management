@@ -1,51 +1,60 @@
-// import vue router
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-//import js cookies
-import Cookie from 'js-cookie'
+import { createRouter, createWebHistory } from "vue-router";
+import MainLayout from "../layouts/MainLayout.vue";
+import login from "../views/auth/login.vue";
+import NotFound from "../views/NotFound.vue";
+import Cookies from "js-cookie";
 
-// Utility to get the token
-const getToken = () => Cookie.get('token')
+const getToken = () => Cookies.get('token')
 
-// define routes with proper type
-const routes: RouteRecordRaw[] = [
+
+const routes = [
     {
         path: '/login',
         name: 'login',
-        component: () => import(/* webpackChunkName: "login" */ '../views/auth/login.vue')
+        component: login
+    },
+
+    {
+        path: '/',
+        component: MainLayout,
+        redirect: '/dashboard', // Redirect otomatis saat akses path /
+        children: [
+        {
+            path: 'dashboard',
+            name: 'dashboard',
+            meta: { requiresAuth: true },
+            component: () => import('../views/admin/dashboard/index.vue')
+        },
+        // Tambahkan rute internal lainnya di sini
+        ]
     },
     {
-        path: '/admin/dashboard',
-        name: 'dashboard',
-        component: () => import(/* webpackChunkName: "dashboard" */ '../views/admin/dashboard/index.vue'),
-        meta: { requiresAuth: true } 
-    },
+        path: '/:pathMatch(.*)*',
+        name: 'not-found',
+        component: NotFound,
+        meta: { requiresAuth: false }
+    }
 ]
 
-// create router
 const router = createRouter({
     history: createWebHistory(),
-    routes,
+    routes
 })
 
 router.beforeEach((to, _from, next) => {
-    // Ambil token otentikasi pengguna
-    const token = getToken();
+    const token = getToken()
 
-    // Jika rute tujuan membutuhkan otentikasi dan pengguna tidak memiliki token
     if (to.matched.some(record => record.meta.requiresAuth) && !token) {
-        // Alihkan pengguna ke halaman login
-        next({ name: 'login' });
-    } 
-    // Jika rute tujuan adalah halaman login atau register dan pengguna sudah login
-    else if ((to.name === 'login') && token) {
-        // Alihkan pengguna ke halaman dashboard
-        next({ name: 'dashboard' });
-    } 
-    // Jika tidak ada kondisi khusus, izinkan navigasi ke rute tujuan
-    else {
-        next();
+        next({ name: 'login' })
     }
-});
+    else if ((to.name === 'login') && token) {
+        next({ name: 'dashboard' })
+    }
+    else {
+        next()
+    }
+})
+
+
 
 export default router
-

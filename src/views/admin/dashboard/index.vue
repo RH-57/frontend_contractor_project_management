@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import Sidebar from '../../../components/Sidebar.vue';
 
+import { useAuthUser } from '../../../composables/useAuthUser';
+
+const user = useAuthUser()
 
 // Data Dummy Statistik
 const stats = ref([
@@ -75,13 +77,12 @@ const activities = ref([
 </script>
 
 <template>
-  <Sidebar>
     <div class="space-y-6">
       
       <!-- 1. HEADER DASHBOARD -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Dashboard Overview</h1>
+          <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Dashboard, Welcome back <strong>{{ user?.name }}</strong></h1>
           <p class="text-sm text-slate-500 mt-1">Ringkasan aktivitas proyek dan performa operasional saat ini.</p>
         </div>
         
@@ -229,5 +230,5 @@ const activities = ref([
       </div>
 
     </div>
-  </Sidebar>
+  
 </template>
