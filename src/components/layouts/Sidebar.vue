@@ -125,6 +125,18 @@ const isActive = (path: string) => route.path === path
                             <Users class="w-4 h-4 shrink-0" />
                             <span>Karyawan</span>
                         </router-link>
+                        <router-link
+                            to="/users"
+                            :class="[
+                                'flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
+                                isActive('/users') 
+                                ? 'bg-orange-50 text-orange-600 font-semibold' 
+                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                            ]"
+                        >
+                            <Users class="w-4 h-4 shrink-0" />
+                            <span>Pengguna</span>
+                        </router-link>
                     </div>
                 </div>
             </div>

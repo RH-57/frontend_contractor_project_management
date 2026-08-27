@@ -19,13 +19,30 @@ const routes = [
         component: MainLayout,
         redirect: '/dashboard', // Redirect otomatis saat akses path /
         children: [
-        {
-            path: 'dashboard',
-            name: 'dashboard',
-            meta: { requiresAuth: true },
-            component: () => import('../views/admin/dashboard/index.vue')
-        },
-        // Tambahkan rute internal lainnya di sini
+            {
+                path: 'dashboard',
+                name: 'dashboard',
+                meta: { requiresAuth: true },
+                component: () => import('../views/admin/dashboard/index.vue')
+            },
+            {
+                path: 'users',
+                name: 'users',
+                meta: { requiresAuth: true },
+                component: () => import('../views/admin/users/Index.vue')
+            },
+            {
+                path: 'users/create',
+                name: 'users.create',
+                meta: { requiresAuth: true },
+                component: () => import('../views/admin/users/Create.vue')
+            },
+            {
+                path: 'users/edit/:id',
+                name: 'users.edit',
+                meta: {requiresAuth: true},
+                component: () => import('../views/admin/users/Edit.vue')
+            }
         ]
     },
     {
