@@ -8,7 +8,7 @@ export interface User {
     username: string;
     email: string;
     role: string;
-    is_active: string;
+    is_active: boolean;
 }
 
 export const useUserById = (id: number) => {

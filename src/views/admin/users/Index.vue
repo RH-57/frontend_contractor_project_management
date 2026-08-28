@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useQueryClient } from '@tanstack/vue-query'
 import { 
   Search, 
   UserPlus, 
@@ -11,6 +12,13 @@ import {
   AlertCircle 
 } from 'lucide-vue-next';
 import { useUsers, type User } from '../../../composables/user/useUser';
+import { useUserDelete } from '../../../composables/user/useUserDelete'
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
+
+
+const queryClient = useQueryClient()
 
 // Panggil composable (data otomatis bertipe User[] | undefined)
 const { data: users, isLoading, isError, error } = useUsers();
@@ -30,12 +38,17 @@ const filteredUsers = computed<User[]>(() => {
   );
 });
 
-const handleEdit = (user: User) => {
-  console.log('Edit user:', user);
-};
+const { mutate, isPending } = useUserDelete()
 
 const handleDelete = (id: number) => {
-  console.log('Hapus user ID:', id);
+  if (confirm("Apakah kamu yakin ingin menghapus user ini?")) {
+    mutate(id, {
+      onSuccess: () => {
+        toast.success("Data pengguna berhasil dihapus.")
+        queryClient.invalidateQueries({ queryKey: ['users'] })
+      },
+    })
+  }
 };
 </script>
 

@@ -4,6 +4,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { useUserById } from '../../../composables/user/useUserById';
 import { useUserUpdate } from '../../../composables/user/useUserUpdate';
 import { ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-vue-next';
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
 
 const route = useRoute()
 const router = useRouter()
@@ -29,6 +32,8 @@ watchEffect(() => {
         name.value = user.value.name
         username.value = user.value.username
         email.value = user.value.email
+        role.value = user.value.role
+        is_active.value = user.value.is_active 
     }
 })
 
@@ -51,9 +56,11 @@ const updateUser = (e: Event) => {
         },
         {
             onSuccess: () => {
+                toast.success('Pengguna berhasil diperbarui!');
                 router.push('/users')
             },
             onError: (error: any) => {
+                toast.error('Gagal memperbarui pengguna. Periksa kembali input Anda.');
                 Object.assign(errors, error.response.data.errors)
             }
         }

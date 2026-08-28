@@ -3,7 +3,9 @@ import { useRouter } from 'vue-router';
 import { ArrowLeft, Eye, EyeOff, Loader2, Save } from 'lucide-vue-next';
 import {ref, reactive} from 'vue';
 import { useUserCreate } from '../../../composables/user/useUserCreate';
+import { useToast } from 'vue-toastification';
 
+const toast = useToast();
 
 const router = useRouter()
 
@@ -40,9 +42,11 @@ const storeUser = (e: Event) => {
         },
         {
             onSuccess: () => {
+                toast.success('Berhasil membuat pengguna baru.')
                 router.push('/users')
             },
             onError: (error: any) => {
+                toast.error('Gagal menambahkan pengguna baru!')
                 Object.assign(errors, error.response.data.errors)
             },
         }
