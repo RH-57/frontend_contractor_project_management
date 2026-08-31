@@ -42,6 +42,24 @@ const routes = [
                 name: 'users.edit',
                 meta: {requiresAuth: true},
                 component: () => import('../views/admin/users/Edit.vue')
+            },
+            {
+                path: 'employees',
+                name: 'employees',
+                meta: { requiresAuth: true },
+                component: () => import('../views/admin/employee/Index.vue')
+            },
+            {
+                path: 'employees/create',
+                name: 'employees.create',
+                meta: {requiresAuth: true},
+                component: () => import('../views/admin/employee/Create.vue')
+            },
+            {
+                path: 'employees/edit/:id',
+                name: 'employees.edit',
+                meta: {requiresAuth: true},
+                component: () => import('../views/admin/employee/Edit.vue')
             }
         ]
     },

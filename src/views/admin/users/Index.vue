@@ -152,9 +152,9 @@ const handleDelete = (id: number) => {
                 <span
                   :class="[
                     'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wider',
-                    user.role === 'admin'
+                    user.role === 'ADMIN'
                       ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                      : user.role === 'pm'
+                      : user.role === 'STAFF'
                       ? 'bg-blue-50 text-blue-700 border border-blue-200'
                       : 'bg-slate-100 text-slate-600 border border-slate-200'
                   ]"

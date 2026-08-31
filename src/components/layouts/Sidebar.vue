@@ -11,7 +11,8 @@ import {
     ChevronDown,
     LogOut,
     Users,
-    BookUser
+    BookUser,
+    User
 } from 'lucide-vue-next'
 
 const user = useAuthUser()
@@ -114,10 +115,10 @@ const isActive = (path: string) => route.path === path
                             <span>Customer</span>
                         </router-link>
                         <router-link
-                            to="/master/karyawan"
+                            to="/employees"
                             :class="[
                                 'flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
-                                isActive('/master/karyawan') 
+                                isActive('/employees') 
                                 ? 'bg-orange-50 text-orange-600 font-semibold' 
                                 : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                             ]"
@@ -134,7 +135,7 @@ const isActive = (path: string) => route.path === path
                                 : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                             ]"
                         >
-                            <Users class="w-4 h-4 shrink-0" />
+                            <User class="w-4 h-4 shrink-0" />
                             <span>Pengguna</span>
                         </router-link>
                     </div>
