@@ -2,21 +2,20 @@ import { useMutation } from "@tanstack/vue-query";
 import Api from "../../services/api";
 import Cookies from "js-cookie";
 
-
-export interface EmployeeRequest {
-    name: string;
-    position: string;
+export interface CustomerRequest {
+     name: string;
     type: string;
     phone: string;
+    email: string;
+    npwp: string;
     address: string;
-    daily_rate: number;
 }
 
-export const useEmployeeCreate = () => {
+export const useCustomerCreate = () => {
     return useMutation({
-        mutationFn: async (data: EmployeeRequest) => {
+        mutationFn: async (data: CustomerRequest) => {
             const token = Cookies.get('token')
-            const response = await Api.post('/api/employees', data, {
+            const response = await Api.post('/api/customers', data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

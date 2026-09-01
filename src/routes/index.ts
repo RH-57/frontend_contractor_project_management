@@ -60,6 +60,24 @@ const routes = [
                 name: 'employees.edit',
                 meta: {requiresAuth: true},
                 component: () => import('../views/admin/employee/Edit.vue')
+            },
+            {
+                path: 'customers',
+                name: 'customers',
+                meta: {requiresAuth: true},
+                component: () => import('../views/admin/customer/Index.vue')
+            },
+            {
+                path: 'customers/create',
+                name: 'customers.create',
+                meta: {requiredAuth: true},
+                component: () => import('../views/admin/customer/Create.vue')
+            },
+            {
+                path: 'customers/edit/:id',
+                name: 'customers.edit',
+                meta: {requiresAuth: true},
+                component: () => import('../views/admin/customer/Edit.vue')
             }
         ]
     },

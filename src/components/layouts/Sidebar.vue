@@ -103,10 +103,10 @@ const isActive = (path: string) => route.path === path
                         class="pl-9 pr-2 py-1 space-y-1"
                     >
                         <router-link
-                            to="/master/karyawan"
+                            to="/customers"
                             :class="[
                                 'flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
-                                isActive('/master/karyawan') 
+                                isActive('/customers') 
                                 ? 'bg-orange-50 text-orange-600 font-semibold' 
                                 : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                             ]"

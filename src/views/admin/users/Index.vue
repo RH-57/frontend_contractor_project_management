@@ -94,7 +94,7 @@ const handleDelete = (id: number) => {
               <th class="py-3.5 px-4">Pengguna</th>
               <th class="py-3.5 px-4">Username</th>
               <th class="py-3.5 px-4">Role</th>
-              <th class="py-3.5 px-4">IsActive</th>
+              <th class="py-3.5 px-4">Status</th>
               <th class="py-3.5 px-4 text-right">Aksi</th>
             </tr>
           </thead>
