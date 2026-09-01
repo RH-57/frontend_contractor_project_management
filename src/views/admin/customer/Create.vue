@@ -109,7 +109,7 @@ const goBack = () => {
                             </label>
                             <input
                                 v-model="email" 
-                                type="text"
+                                type="email"
                                 placeholder="email@domain.com"
                                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#FBB03B] focus:ring-2 focus:ring-amber-100 transition duration-150"
                             />
