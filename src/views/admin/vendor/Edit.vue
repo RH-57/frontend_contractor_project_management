@@ -1,45 +1,48 @@
 <script setup lang="ts">
 import {ref, reactive, watchEffect} from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useCustomerById } from '../../../composables/customer/useCustomerById';
+import { useVendorbyId } from '../../../composables/vendor/useVendorById';
 import { useToast } from 'vue-toastification';
-import { useCustomerUpdate } from '../../../composables/customer/useCustomerUpdate';
+import { useVendorUpdate } from '../../../composables/vendor/useVendorUpdate';
 import { ArrowLeft, Loader2, Save } from 'lucide-vue-next';
 
 const toast = useToast()
 const route = useRoute()
 const router = useRouter()
 const errorMessage = ref('')
-
 const id = Number(route.params.id)
 
 const name = ref<string>('')
-const type = ref<string>('PRIBADI')
+const type = ref<string>('SUPPLIER')
 const phone = ref<string>('')
 const email = ref<string>('')
 const npwp = ref<string>('')
+const payment_terms = ref<number>(0)
 const address = ref<string>('')
+const note = ref<string>('')
 const is_active = ref<boolean>(true)
 
 const errors = reactive<Record<string, string>>({})
 
-const { data: customer, isLoading, isError } = useCustomerById(id)
-const { mutate, isPending } = useCustomerUpdate()
+const { data: vendor, isLoading, isError } = useVendorbyId(id)
+const {mutate, isPending} = useVendorUpdate()
 
 watchEffect(() => {
-    if (customer.value) {
-        name.value = customer.value.name || ''
-        type.value = customer.value.type || 'PRIBADI'
-        phone.value = customer.value.phone || ''
-        email.value = customer.value.email || ''
-        npwp.value = customer.value.npwp || ''
-        address.value = customer.value.address || ''
-        const activeData = customer.value.is_active;
+    if (vendor.value) {
+        name.value = vendor.value.name || ''
+        type.value = vendor.value.type || 'SUPPLIER'
+        phone.value = vendor.value.phone || ''
+        email.value = vendor.value.email || ''
+        npwp.value = vendor.value.npwp || ''
+        address.value = vendor.value.address || ''
+        note.value = vendor.value.note || ''
+        payment_terms.value = vendor.value.payment_terms ?? '30'
+        const activeData = vendor.value.is_active;
         is_active.value = activeData === true || Number(activeData) === 1;
     }
 })
 
-const updateCustomer = (e: Event) => {
+const updateVendor = (e: Event) => {
     e.preventDefault()
 
     errorMessage.value = ''
@@ -60,16 +63,18 @@ const updateCustomer = (e: Event) => {
                 email: email.value,
                 npwp: npwp.value,
                 address: address.value,
+                note: note.value,
+                payment_terms: payment_terms.value,
                 is_active: is_active.value
             }
         },
         {
             onSuccess: () => {
-                toast.success('Berhasil memperbarui data pelanggan')
-                router.push('/customers')
+                toast.success('Berhasil memperbarui data vendor')
+                router.push('/vendors')
             },
             onError: (error: any) => {
-                toast.error('Gagal memperbarui data pelanggan')
+                toast.error('Gagal memperbarui data vendor')
                 if (error.response?.data?.errors) {
                     Object.assign(errors, error.response.data.errors)
                 }
@@ -105,27 +110,27 @@ const goBack = () => {
         <div v-if="isLoading" class="bg-white p-4 rounded-2xl border border-slate-200 flex justify-center items-center min-h-[300px]">
             <div class="flex items-center gap-2 text-slate-500">
                 <Loader2 class="w-6 h-6 animate-spin text-[#FBB03B]" />
-                <span>Memuat data pelanggan...</span>
+                <span>Memuat data karyawan...</span>
             </div>
         </div>
         <div v-else-if="isError" class="bg-rose-50 border border-rose-200 text-rose-600 p-6 rounded-2xl text-center">
-            Data pelanggan tidak ditemukan atau terjadi kesalahan server.
+            Data karyawan tidak ditemukan atau terjadi kesalahan server.
         </div>
 
         <div v-else class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
-            <form @submit="updateCustomer" class="space-y-6">
+            <form @submit="updateVendor" class="space-y-6">
                 <div v-if="errorMessage" class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-sm">
                     {{ errorMessage }}
                 </div>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                            Nama Lengkap <span class="text-rose-500">*</span>
+                            Name Vendor <span class="text-rose-500">*</span>
                         </label>
                         <input 
                             v-model="name"
                             type="text"
-                            placeholder="Masukan Nama Lengkap"
+                            placeholder="Masukan Nama Vendor"
                             class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#FBB03B] focus:ring-2 focus:ring-amber-100 transition duration-150"
                         />
                         <p v-if="errors.name" class="mt-1 text-xs text-rose-500">{{ errors.name }}</p>
@@ -133,7 +138,7 @@ const goBack = () => {
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                                No. Hp <span class="text-rose-500">*</span>
+                                No. Telpon <span class="text-rose-500">*</span>
                             </label>
                             <input
                                 v-model="phone" 
@@ -167,20 +172,32 @@ const goBack = () => {
                                 placeholder="00.000.000.0-000.000"
                                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#FBB03B] focus:ring-2 focus:ring-amber-100 transition duration-150"
                             />
-                            <p v-if="errors.npwp" class="mt-1 text-xs text-rose-500">{{ errors.npwp }}</p>
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">
-                                Tipe
-                            </label>
-                            <select
-                                v-model="type"
-                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#FBB03B] focus:ring-2 focus:ring-amber-100 transition duration-150 bg-white"
-                            >
-                                <option value="PRIBADI">Pribadi</option>
-                                <option value="PERUSAHAAN">Perusahaan</option>
-                                <option value="OTHER">Lainnya</option>
-                            </select>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                                    Tipe
+                                </label>
+                                <select
+                                    v-model="type"
+                                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#FBB03B] focus:ring-2 focus:ring-amber-100 transition duration-150 bg-white"
+                                >
+                                    <option value="SUPPLIER">Supplier</option>
+                                    <option value="SUBCON">Subcon</option>
+                                    <option value="BOTH">Supplier & Subcon</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                                    Termin Bayar
+                                </label>
+                                <input
+                                    v-model="payment_terms" 
+                                    type="text"
+                                    placeholder="0"
+                                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#FBB03B] focus:ring-2 focus:ring-amber-100 transition duration-150"
+                                />
+                            </div>
                         </div>
                     </div>
                     <div>
@@ -189,6 +206,16 @@ const goBack = () => {
                         </label>
                         <textarea 
                             v-model="address"
+                            type="text"
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#FBB03B] focus:ring-2 focus:ring-amber-100 transition duration-150"
+                        ></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Catatan
+                        </label>
+                        <textarea 
+                            v-model="note"
                             type="text"
                             class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-[#FBB03B] focus:ring-2 focus:ring-amber-100 transition duration-150"
                         ></textarea>
@@ -217,7 +244,7 @@ const goBack = () => {
                             </button>
                             
                             <span class="text-sm font-medium" :class="is_active ? 'text-slate-800' : 'text-slate-400'">
-                                {{ is_active ? 'Karyawan Aktif' : 'Non-Aktif' }}
+                                {{ is_active ? 'Vendor Aktif' : 'Vendor Non-Aktif' }}
                             </span>
                         </div>
                     </div>
@@ -238,10 +265,10 @@ const goBack = () => {
                     >
                         <Loader2 v-if="isPending" class="w-4 h-4 animate-spin" />
                         <Save v-else class="w-4 h-4" />
-                        <span>{{ isPending ? 'Menyimpan...' : 'Perbarui Karyawan' }}</span>
+                        <span>{{ isPending ? 'Menyimpan...' : 'Perbarui Vendor' }}</span>
                     </button>
                 </div>
             </form>
         </div>
-    </div>
+    </div>  
 </template>

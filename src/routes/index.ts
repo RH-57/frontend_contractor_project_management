@@ -78,6 +78,24 @@ const routes = [
                 name: 'customers.edit',
                 meta: {requiresAuth: true},
                 component: () => import('../views/admin/customer/Edit.vue')
+            },
+            {
+                path: 'vendors',
+                name: 'vendors',
+                meta: {requiredAuth: true},
+                component: () => import('../views/admin/vendor/Index.vue')
+            },
+            {
+                path: 'vendors/create',
+                name: 'vendor.create',
+                meta: {requiresAuth: true},
+                component: () => import('../views/admin/vendor/Create.vue')
+            },
+            {
+                path: 'vendors/edit/:id',
+                name: 'vendors.edit',
+                meta: {requiresAuth: true},
+                component: () => import('../views/admin/vendor/Edit.vue')
             }
         ]
     },
