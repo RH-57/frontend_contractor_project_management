@@ -13,7 +13,9 @@ import {
     Users,
     BookUser,
     User,
-    Container
+    Container,
+    Blocks,
+    HandCoins
 } from 'lucide-vue-next'
 
 const user = useAuthUser()
@@ -86,6 +88,30 @@ const isActive = (path: string) => route.path === path
                         v-show="isKonstruksiOpen && !isCollapsed"
                         class="pl-9 pr-2 py-1 space-y-1"
                     >
+                        <router-link
+                            to="/projects"
+                            :class="[
+                                'flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
+                                isActive('/projects') 
+                                ? 'bg-orange-50 text-orange-600 font-semibold' 
+                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                            ]"
+                        >
+                            <Blocks class="w-4 h-4 shrink-0" />
+                            <span>Daftar Proyek</span>
+                        </router-link>
+                        <router-link
+                            to="/billings"
+                            :class="[
+                                'flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
+                                isActive('/billings') 
+                                ? 'bg-orange-50 text-orange-600 font-semibold' 
+                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                            ]"
+                        >
+                            <HandCoins class="w-4 h-4 shrink-0" />
+                            <span>Progres Pembayaran</span>
+                        </router-link>
                         <router-link
                             to="/vendors"
                             :class="[

@@ -96,6 +96,12 @@ const routes = [
                 name: 'vendors.edit',
                 meta: {requiresAuth: true},
                 component: () => import('../views/admin/vendor/Edit.vue')
+            },
+            {
+                path: 'projects',
+                name: 'projects',
+                meta: {requiresAuth: true},
+                component: () => import('../views/admin/project/Index.vue')
             }
         ]
     },
