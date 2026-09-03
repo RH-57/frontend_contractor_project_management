@@ -102,6 +102,12 @@ const routes = [
                 name: 'projects',
                 meta: {requiresAuth: true},
                 component: () => import('../views/admin/project/Index.vue')
+            },
+            {
+                path: 'projects/create',
+                name: 'projects.create',
+                meta: {requiresAuth: true},
+                component: () => import('../views/admin/project/Create.vue')
             }
         ]
     },

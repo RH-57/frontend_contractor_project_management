@@ -25,6 +25,8 @@ export interface Project {
     contract_value: number;
     estimated_cost: number;
     status: string;
+    address: string;
+    description: string;
     start_date: string;
     end_date: string;
     created_by_id?: number;
