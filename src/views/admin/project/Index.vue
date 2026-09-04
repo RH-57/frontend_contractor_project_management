@@ -181,7 +181,7 @@ const formatDate = (dateStr: string): string => {
                         <span>{{ formatDate(project.start_date) }}</span>
                     </div>
                     <router-link
-                        :to="`/projects/${project.id}`"
+                        :to="`/projects/show/${project.id}`"
                         class="inline-flex items-center gap-1 font-semibold text-[#E65100] hover:text-[#c64400] transition-colors"
                     >
                         <span>Kelola</span>
